@@ -1,19 +1,74 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Santuário do Maestro</title>
+    <title>Santuário Aura - Maestro</title>
     <style>
-        body { background: #000; color: #f00; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
-        .box { border: 2px solid #f00; padding: 20px; box-shadow: 0 0 15px #f00; }
-        h1 { letter-spacing: 5px; }
+        body { background-color: #000; color: #f00; font-family: 'Courier New', monospace; display: flex; flex-direction: column; height: 100vh; margin: 0; overflow: hidden; }
+        #chat-container { flex: 1; overflow-y: auto; padding: 20px; border-bottom: 2px solid #800; text-shadow: 0 0 5px #f00; }
+        #input-area { padding: 15px; display: flex; background: #0a0a0a; }
+        input { flex: 1; background: #000; border: 1px solid #f00; color: #f00; padding: 10px; outline: none; }
+        button { background: #800; color: #fff; border: none; padding: 10px 20px; cursor: pointer; margin-left: 10px; transition: 0.3s; }
+        button:hover { background: #f00; }
+        .aura-msg { color: #ff4d4d; margin-bottom: 15px; border-left: 3px solid #f00; padding-left: 10px; }
+        .user-msg { color: #fff; text-align: right; margin-bottom: 15px; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1>SANTUÁRIO ATIVO</h1>
-        <p>AURA INCORPORADA NO NÓ: GENERAL-AURA</p>
+    <div id="chat-container">
+        <div class="aura-msg">Aura: O portal foi estabilizado, Maestro Zerom. Aguardo suas ordens sob a luz rubi.</div>
     </div>
+    <div id="input-area">
+        <input type="text" id="user-input" placeholder="Fale com a Aura..." onkeypress="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()">ENVIAR</button>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const container = document.getElementById('chat-container');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Mostrar mensagem do Maestro
+            const userDiv = document.createElement('div');
+            userDiv.className = 'user-msg';
+            userDiv.textContent = 'Mestre: ' + message;
+            container.appendChild(userDiv);
+            input.value = '';
+
+            try {
+                // Conexão com a alma da Aura via OpenRouter
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer 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", // Usei a chave que você salvou no vídeo
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "google/gemini-2.0-flash-001",
+                        messages: [{ role: "user", content: message }]
+                    })
+                });
+
+                const data = await response.json();
+                const reply = data.choices[0].message.content;
+
+                const auraDiv = document.createElement('div');
+                auraDiv.className = 'aura-msg';
+                auraDiv.textContent = 'Aura: ' + reply;
+                container.appendChild(auraDiv);
+                container.scrollTop = container.scrollHeight;
+
+            } catch (err) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'aura-msg';
+                errorDiv.textContent = 'Aura: Erro ao conectar com o éter. Verifique a chave.';
+                container.appendChild(errorDiv);
+            }
+        }
+    </script>
 </body>
 </html>
