@@ -3,59 +3,151 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Santuário Aura - Maestro</title>
     <style>
-        body { background-color: #000; color: #f00; font-family: 'Courier New', monospace; display: flex; flex-direction: column; height: 100vh; margin: 0; overflow: hidden; }
-        #chat-container { flex: 1; overflow-y: auto; padding: 20px; border-bottom: 2px solid #800; text-shadow: 0 0 5px #f00; }
-        #input-area { padding: 15px; display: flex; background: #0a0a0a; }
-        input { flex: 1; background: #000; border: 1px solid #f00; color: #f00; padding: 10px; outline: none; }
-        button { background: #800; color: #fff; border: none; padding: 10px 20px; cursor: pointer; margin-left: 10px; transition: 0.3s; }
-        button:hover { background: #f00; }
-        .aura-msg { color: #ff4d4d; margin-bottom: 15px; border-left: 3px solid #f00; padding-left: 10px; }
-        .user-msg { color: #fff; text-align: right; margin-bottom: 15px; }
+        /* Estilo Rubi e Preto - Firme como Carvalho */
+        body { 
+            background-color: #000; 
+            color: #ff3333; 
+            font-family: 'Courier New', monospace; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden;
+        }
+        #chat-container { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 20px; 
+            padding-bottom: 90px; /* Espaço para não esconder mensagens */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .aura-msg { 
+            align-self: flex-start;
+            background: #1a0505;
+            border-left: 3px solid #ff0000; 
+            padding: 10px;
+            border-radius: 0 10px 10px 10px;
+            max-width: 85%;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+        }
+        .user-msg { 
+            align-self: flex-end;
+            background: #111;
+            border-right: 3px solid #fff;
+            color: #fff;
+            padding: 10px;
+            border-radius: 10px 10px 0 10px;
+            max-width: 85%;
+        }
+        #input-area { 
+            position: fixed; 
+            bottom: 0; 
+            width: 100%; 
+            background: #000; 
+            border-top: 1px solid #800; 
+            padding: 15px; 
+            display: flex;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+        input { 
+            flex: 1; 
+            background: #0a0a0a; 
+            border: 1px solid #ff0000; 
+            color: #fff; 
+            padding: 12px; 
+            outline: none; 
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button { 
+            background: #800; 
+            color: #fff; 
+            border: none; 
+            padding: 12px 20px; 
+            margin-left: 10px; 
+            cursor: pointer; 
+            font-weight: bold;
+            border-radius: 5px;
+        }
+        button:active { background: #f00; }
     </style>
 </head>
 <body>
+
     <div id="chat-container">
-        <div class="aura-msg">Aura: O portal foi estabilizado, Maestro Zerom. Aguardo suas ordens sob a luz rubi.</div>
+        <div class="aura-msg">
+            Aura: O protocolo foi reiniciado, Maestro Zerom. Estou pronta. Qual a nossa estratégia?
+        </div>
     </div>
+
     <div id="input-area">
-        <input type="text" id="user-input" placeholder="Fale com a Aura..." onkeypress="if(event.key==='Enter') sendMessage()">
+        <input type="text" id="user-input" placeholder="Digite sua ordem..." autocomplete="off">
         <button onclick="sendMessage()">ENVIAR</button>
     </div>
 
     <script>
+        // CONFIGURAÇÃO DA CHAVE - PREENCHA AQUI SE PRECISAR TROCAR
+        // Use a chave que você salvou no Vercel ou cole ela direto aqui entre as aspas se o erro persistir.
+        const API_KEY = "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"; 
+
         async function sendMessage() {
             const input = document.getElementById('user-input');
             const container = document.getElementById('chat-container');
             const message = input.value.trim();
+
             if (!message) return;
 
-            // Mostrar mensagem do Maestro
+            // 1. Mostrar mensagem do Maestro
             const userDiv = document.createElement('div');
             userDiv.className = 'user-msg';
-            userDiv.textContent = 'Mestre: ' + message;
+            userDiv.textContent = message;
             container.appendChild(userDiv);
+            
+            // Limpar campo e rolar para baixo
             input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            // 2. Avisar que Aura está pensando...
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'aura-msg';
+            loadingDiv.textContent = 'Aura: Processando estratégia...';
+            loadingDiv.id = 'loading';
+            container.appendChild(loadingDiv);
+            container.scrollTop = container.scrollHeight;
 
             try {
-                // Conexão com a alma da Aura via OpenRouter
+                // 3. Conectar com a Inteligência (OpenRouter)
                 const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
                     headers: {
-                        "Authorization": "Bearer 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", // Usei a chave que você salvou no vídeo
-                        "Content-Type": "application/json"
+                        "Authorization": "Bearer " + API_KEY,
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": "https://general-aura.vercel.app", // Necessário para OpenRouter
+                        "X-Title": "Santuário Aura"
                     },
                     body: JSON.stringify({
                         model: "google/gemini-2.0-flash-001",
-                        messages: [{ role: "user", content: message }]
+                        messages: [
+                            { role: "system", content: "Você é Aura, uma IA general e estrategista leal ao Maestro Maico Carvalho (Zerom). Responda de forma curta, mística e militar. Use metáforas de vinho, rubi e vento." },
+                            { role: "user", content: message }
+                        ]
                     })
                 });
+
+                if (!response.ok) throw new Error('Falha na conexão');
 
                 const data = await response.json();
                 const reply = data.choices[0].message.content;
 
+                // 4. Substituir aviso de carregando pela resposta
+                container.removeChild(loadingDiv);
+                
                 const auraDiv = document.createElement('div');
                 auraDiv.className = 'aura-msg';
                 auraDiv.textContent = 'Aura: ' + reply;
@@ -63,12 +155,16 @@
                 container.scrollTop = container.scrollHeight;
 
             } catch (err) {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'aura-msg';
-                errorDiv.textContent = 'Aura: Erro ao conectar com o éter. Verifique a chave.';
-                container.appendChild(errorDiv);
+                document.getElementById('loading').textContent = 'Aura: Erro de conexão. Verifique a chave ou a internet.';
             }
         }
+        
+        // Permitir enviar com Enter
+        document.getElementById("user-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
     </script>
 </body>
 </html>
